@@ -2,11 +2,12 @@
 
     ///// Constants
 
-    var BOX_SIZE = 20;
-    var LIGHT_GRAY = '#999999';
-    var LIGHTER_GRAY = '#bbbbbb';
+    var BOX_SIZE = 15;
+    var LIGHT_GRAY = '#aaaaaa';
+    var LIGHTER_GRAY = '#dddddd';
     var DOT_SIZE = 1;
-    var DRAWERS_COUNT = 2;
+    var DRAWERS_COUNT = 50;
+    var FILL_COLORS = '#F0E3DF #E3DFF0 #DFEDF0 #DFF0DF'.split(' ');
 
     ///// Classes
 
@@ -36,6 +37,8 @@
         this.id = _.uniqueId('l');
         this.dot1 = dot1;
         this.dot2 = dot2;
+        this.boxes = [];
+        this.drawn = false;
     };
 
     Line.prototype = {
@@ -48,13 +51,88 @@
             ctx.moveTo(coords1.x, coords1.y);
             ctx.lineTo(coords2.x, coords2.y);
             ctx.stroke();
+
+            this.drawn = true;
+        },
+
+        setPointerToBox: function(box) {
+            this.boxes.push(box);
+        },
+
+        alertBoxes: function() {
+            var len = this.boxes.length;
+            while (len--) {
+                this.boxes[len].lineDrawn();
+            }
         }
     };
 
-    var Box = function( line1, line2, line3, line4 ) {
+    var Box = function( dot1, dot2, dot3, dot4 ) {
+        this.id = _.uniqueId('b');
+        this.dots = [];
 
+        this.lines = [
+            lines.get(dot1, dot2),
+            lines.get(dot2, dot3),
+            lines.get(dot3, dot4),
+            lines.get(dot4, dot1)
+        ];
+
+        this.lines = _.compact(this.lines);
+        if (this.lines.length !== 4) {
+            return;
+        }
+
+        // set pointers on the lines back to this box
+        // and setup the dots array
+        for (var i = 0, len = this.lines.length; i < len; i++) {
+            this.lines[i].setPointerToBox(this);
+            this.dots.push(this.lines[i].dot1);
+            this.dots.push(this.lines[i].dot2);
+        }
+
+        this.dots = _.uniq(this.dots);
     };
 
+    Box.prototype = {
+        // returns the upper LH dot of the box
+        getOriginDot: function() {
+            var originDot;
+            var len = this.dots.length;
+            while (len--) {
+                var dot = this.dots[len];
+                originDot = originDot || dot;
+                if (dot.x < originDot.x || dot.y < originDot.y) {
+                    originDot = dot;
+                }
+            }
+            return originDot;
+        },
+
+        checkDrawnLines: function() {
+            var len = this.lines.length;
+            while (len--) {
+                if (!this.lines[len].drawn) { return false; }
+            }
+            return true;
+        },
+
+        fill: function(ctx) {
+            /// get the upper LH dot
+            var dot = this.getOriginDot();
+            var coords = dot.coords();
+            ctx.beginPath();
+            ctx.rect(coords.x, coords.y, BOX_SIZE, BOX_SIZE);
+            ctx.fillStyle = random(FILL_COLORS);
+            ctx.fill();
+        },
+
+        lineDrawn: function() {
+            if (this.checkDrawnLines()) {
+                this.fill(DOTS);
+            }
+        }
+    };
 
     ///// Dots Collection
 
@@ -129,13 +207,24 @@
             return neighbors;
         }
 
+        // with 'dot' as the upper LH corner, get the next 3 dots that make up the box
+        function getFourCorners(dot) {
+            var corners = [
+                dot,
+                get( dot.x + 1, dot.y ),
+                get( dot.x + 1, dot.y + 1 ),
+                get( dot.x, dot.y + 1)
+            ];
+            return _.compact(corners);
+        }
 
         return {
             add: add,
             get: get,
             length: length,
             getNeighborsOf: getNeighborsOf,
-            getAllNeighborsOf: getAllNeighborsOf
+            getAllNeighborsOf: getAllNeighborsOf,
+            getFourCorners: getFourCorners
         };
     })();
 
@@ -278,6 +367,8 @@
 
                 var dot = (line.dot1 === this.location) ? line.dot2 : line.dot1;
                 this.location = dot;
+
+                line.alertBoxes();
             },
             remove: function() {
                 this.dead = true;
@@ -285,12 +376,14 @@
             }
         };
 
-
         return {
             create: create,
             get: get
         };
     })();
+
+
+    var boxes = [];
 
 
     ///// Start Up
@@ -326,6 +419,14 @@
             lines.add( new Line(dot, neighbors[1]) );
 
         }
+
+        ///// build the boxes 
+        for (var p = 0; p < leng; p++) {
+            var ds = dots.getFourCorners( allDots[p] );
+            if (ds.length !== 4) { continue; }
+            boxes.push(new Box( ds[0], ds[1], ds[2], ds[3] ) );
+        }
+
 
         ///// start some drawers
         for (var k = 0; k < DRAWERS_COUNT; k++) {
