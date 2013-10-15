@@ -140,25 +140,7 @@
 
         var _dots = {};
         var _length = 0;
-
-        function flatten() {
-            var allDots = [];
-
-            for (var x in _dots) {
-                if (_dots.hasOwnProperty(x)) {
-
-                    for (var y in _dots[x]) {
-                        if (_dots[x].hasOwnProperty(y)) {
-
-                            allDots.push( _dots[x][y] );
-
-                        }
-                    }
-                }
-            }
-
-            return allDots;
-        }
+        var _dots_array = [];
 
         function add( dot ) {
             if (!dot) { return; }
@@ -170,13 +152,15 @@
             _dots[x] = _dots[x] || {};
             _dots[x][y] = dot;
 
+            _dots_array.push(dot);
+
             _length += 1;
         }
 
         function get( x, y ) {
 
             if (typeof x !== 'number' || typeof y !== 'number') {
-                return flatten();
+                return _dots_array;
             }
 
             x = 'x' + x;
@@ -218,13 +202,19 @@
             return _.compact(corners);
         }
 
+        function reset() {
+            _dots = {};
+            _length = 0;
+        }
+
         return {
             add: add,
             get: get,
             length: length,
             getNeighborsOf: getNeighborsOf,
             getAllNeighborsOf: getAllNeighborsOf,
-            getFourCorners: getFourCorners
+            getFourCorners: getFourCorners,
+            reset: reset
         };
     })();
 
@@ -235,25 +225,7 @@
 
         var _lines = {};
         var _length = 0;
-
-        function flatten() {
-            var allLines = [];
-
-            for (var x in _lines) {
-                if (_lines.hasOwnProperty(x)) {
-
-                    for (var y in _lines[x]) {
-                        if (_lines[x].hasOwnProperty(y)) {
-
-                            allLines.push( _lines[x][y] );
-
-                        }
-                    }
-                }
-            }
-
-            return allLines;
-        }
+        var _lines_array = [];
 
         function add( line ) {
             var dot1 = line.dot1;
@@ -264,6 +236,8 @@
             _lines[dot1.id] = _lines[dot1.id] || {};
             _lines[dot1.id][dot2.id] = line;
 
+            _lines_array.push(line);
+
             _length += 1;
         }
 
@@ -271,7 +245,7 @@
         function get( dot1, dot2 ) {
 
             if (!dot1 || !dot2) {
-                return flatten();
+                return _lines_array;
             }
 
             if (_lines[dot1.id] && _lines[dot1.id][dot2.id]) {
@@ -286,10 +260,17 @@
             return _length;
         }
 
+        function reset() {
+            _lines = {};
+            _length = 0;
+            _lines_array = [];
+        }
+
         return {
             add: add,
             get: get,
-            length: length
+            length: length,
+            reset: reset
         };
     })();
 
@@ -327,6 +308,15 @@
         function removeDrawer( drawer ) {
             var i = _.indexOf(_drawers, drawer);
             _drawers.splice( i, 1);
+        }
+
+        function getAlive() {
+            return _.where(_drawers, { dead: false });
+        }
+
+        function reset() {
+            _drawers = [];
+            _lines = [];
         }
 
         ///// Drawer Class
@@ -378,7 +368,9 @@
 
         return {
             create: create,
-            get: get
+            get: get,
+            reset: reset,
+            getAlive: getAlive
         };
     })();
 
@@ -437,6 +429,9 @@
     };
 
     DOTS.update = function() {
+        if (!drawers.getAlive().length) {
+            DOTS.reset();
+        }
     };
 
     DOTS.draw = function() {
@@ -454,6 +449,16 @@
 
     };
 
+    DOTS.reset = function() {
+        DOTS.stop();
+        dots.reset();
+        lines.reset();
+        drawers.reset();
+        boxes = [];
+        DOTS.clear();
+        DOTS.setup();
+        DOTS.start();
+    };
 
     ///// Exports
 
