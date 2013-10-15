@@ -2,17 +2,28 @@
 <html>
     <head>
         <title>Dots</title>
+        <link rel="stylesheet" href="style/info.css">
         <link rel="stylesheet" href="style/style.css">
     </head>
     <body>
-        <div id="container"></div>
-
+        <div id="info" class="info_container"></div>
+        <div id="container" class="content_wrapper"></div>
+        <script src="js/libs/info.js"></script>
+        <script src="js/libs/Markdown.Converter.js"></script>
         <script src="js/libs/underscore.js"></script>
         <script src="js/libs/sketch.min.js"></script>
         <script src="js/script.js"></script>
         <script>
         
+        new Info({
+            url: 'README.md',
+            el: 'info',
+            container: 'container',
+            keyTrigger: true
+        });
+
         window.onload = function() {
+
             DOTS.start();
         };
 
