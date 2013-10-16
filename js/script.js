@@ -2,7 +2,6 @@
 // TO DO
 // -----
 // * separate into a few different files
-// * examine performance issues re: # of dots
 
 
 (function(){
