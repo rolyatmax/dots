@@ -12,7 +12,7 @@
     var CONST = {
         BOX_SIZE: 25,
         LIGHT_GRAY: '#aaaaaa',
-        LIGHTER_GRAY: '#bbbbbb',
+        LINE_COLOR: '#bbb',
         DOT_SIZE: 1,
         DRAWERS_COUNT: 15,
         DRAW_SPEED: 0.1,
@@ -30,9 +30,9 @@
             {r: 0, g: 0, b: 0, a: 0.1}
         ],
         MONOBLUE: [
-            {r: 115, g: 129, b: 158, a: 0.8},
-            {r: 115, g: 129, b: 158, a: 0.6},
-            {r: 115, g: 129, b: 158, a: 0.4},
+            {r: 115, g: 129, b: 158, a: 0.7},
+            {r: 115, g: 129, b: 158, a: 0.5},
+            {r: 115, g: 129, b: 158, a: 0.35},
             {r: 115, g: 129, b: 158, a: 0.2}
         ]
     };
@@ -102,7 +102,7 @@
             var coords1 = this.dot1.coords();
             var coords2 = this.dot2.coords();
 
-            ctx.strokeStyle = CONST.LIGHTER_GRAY;
+            ctx.strokeStyle = CONST.LINE_COLOR;
             ctx.beginPath();
             ctx.moveTo(coords1.x, coords1.y);
             ctx.lineTo(coords2.x, coords2.y);
@@ -183,10 +183,12 @@
             ctx.rect(coords.x + 1, coords.y + 1, CONST.BOX_SIZE - 2, CONST.BOX_SIZE - 2);
             ctx.fillStyle = 'white';
             ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.stroke();
             ctx.closePath();
 
             ctx.beginPath();
-            ctx.rect(coords.x + 1, coords.y + 1, CONST.BOX_SIZE - 2, CONST.BOX_SIZE - 2);
+            ctx.rect(coords.x, coords.y, CONST.BOX_SIZE, CONST.BOX_SIZE);
             ctx.fillStyle = this.color.fadeInStep().toRGBA();
             ctx.fill();
         },
@@ -495,7 +497,7 @@
 
             draw: function(ctx) {
 
-                ctx.strokeStyle = CONST.LIGHTER_GRAY;
+                ctx.strokeStyle = CONST.LINE_COLOR;
                 ctx.beginPath();
                 ctx.moveTo(this.cur.x, this.cur.y);
                 ctx.lineTo(this.next.x, this.next.y);
