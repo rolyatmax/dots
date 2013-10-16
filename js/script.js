@@ -2,8 +2,6 @@
 // TO DO
 // -----
 // * separate into a few different files
-// * fix colors to be rgba
-// * add fade for the boxes
 // * examine performance issues re: # of dots
 
 
@@ -18,13 +16,56 @@
         DOT_SIZE: 1,
         DRAWERS_COUNT: 15,
         DRAW_SPEED: 0.1,
-        MULTI: '#F0E3DF #E3DFF0 #DFEDF0 #DFF0DF'.split(' '),
-        GRAYSCALE: '#d8d8d8 #e0e0e0 #e8e8e8 #f0f0f0'.split(' '),
-        MONOBLUE: 'rgba(115,129,158,0.6) rgba(115,129,158,0.45) rgba(115,129,158,0.3) rgba(115,129,158,0.1)'.split(' ')
+        FADE_SPEED: 0.1,
+        MULTI: [
+            {r: 129, g: 116, b: 179, a: 0.6},
+            {r: 116, g: 150, b: 179, a: 0.6},
+            {r: 140, g: 179, b: 116, a: 0.6},
+            {r: 179, g: 131, b: 116, a: 0.6}
+        ],
+        GRAYSCALE: [
+            {r: 0, g: 0, b: 0, a: 0.4},
+            {r: 0, g: 0, b: 0, a: 0.3},
+            {r: 0, g: 0, b: 0, a: 0.2},
+            {r: 0, g: 0, b: 0, a: 0.1}
+        ],
+        MONOBLUE: [
+            {r: 115, g: 129, b: 158, a: 0.8},
+            {r: 115, g: 129, b: 158, a: 0.6},
+            {r: 115, g: 129, b: 158, a: 0.4},
+            {r: 115, g: 129, b: 158, a: 0.2}
+        ]
     };
 
 
     ///// Classes
+
+    var Color = function( opts ) {
+        opts = opts || {};
+        this.r = opts.r;
+        this.g = opts.g;
+        this.b = opts.b;
+        this.a = opts.a;
+        this.box = opts.box;
+        this.cur_alpha = 0;
+    };
+
+    Color.prototype = {
+        toRGBA: function() {
+            var levels = [ this.r, this.g, this.b, this.cur_alpha ];
+            return 'rgba(' + levels.join(',') + ')';
+        },
+
+        fadeInStep: function() {
+            var da = (this.a - this.cur_alpha) * CONST.FADE_SPEED;
+            this.cur_alpha += da;
+            if (da < 0.00001) {
+                this.cur_alpha = this.a;
+                if (this.box) this.box.fadeComplete();
+            }
+            return this;
+        }
+    };
 
     var Dot = function( x, y ) {
         this.id = 'd-x' + x + 'y' + y;
@@ -85,6 +126,7 @@
     var Box = function( dot1, dot2, dot3, dot4 ) {
         this.id = _.uniqueId('b');
         this.dots = [];
+        this.fading = false;
 
         this.lines = [
             lines.get(dot1, dot2),
@@ -121,6 +163,7 @@
                     originDot = dot;
                 }
             }
+            this.originDot = originDot;
             return originDot;
         },
 
@@ -134,18 +177,37 @@
 
         fill: function(ctx) {
             /// get the upper LH dot
-            var dot = this.getOriginDot();
+            var dot = this.originDot || this.getOriginDot();
             var coords = dot.coords();
             ctx.beginPath();
-            ctx.rect(coords.x, coords.y, CONST.BOX_SIZE, CONST.BOX_SIZE);
-            ctx.fillStyle = random(DOTS.FILL_COLORS);
+            ctx.rect(coords.x + 1, coords.y + 1, CONST.BOX_SIZE - 2, CONST.BOX_SIZE - 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.rect(coords.x + 1, coords.y + 1, CONST.BOX_SIZE - 2, CONST.BOX_SIZE - 2);
+            ctx.fillStyle = this.color.fadeInStep().toRGBA();
             ctx.fill();
         },
 
         lineDrawn: function() {
             if (this.checkDrawnLines()) {
-                this.fill(DOTS);
+                this.startFade();
             }
+        },
+
+        startFade: function() {
+            var color_data = random(DOTS.FILL_COLORS);
+            color_data.box = this;
+            this.color = new Color( color_data );
+            this.fading = true;
+            boxes.addToFading(this);
+        },
+
+        fadeComplete: function() {
+            this.fading = false;
+            boxes.removeFromFading(this);
         }
     };
 
@@ -289,6 +351,63 @@
             reset: reset
         };
     })();
+
+
+    ///// Lines Collection
+
+    var boxes = (function(){
+
+        var _boxes = [];
+        var _length = 0;
+        var _fading_boxes = [];
+
+        function add( box ) {
+            if (!box) { return; }
+
+            _boxes.push(box);
+
+            _length += 1;
+        }
+
+        function get() {
+            return _boxes;
+        }
+
+        function getFading() {
+            return _fading_boxes;
+        }
+
+        function removeFromFading(box) {
+            var i = _.indexOf(_fading_boxes, box);
+            _fading_boxes.splice( i, 1);
+        }
+
+        function addToFading(box) {
+            _fading_boxes.push(box);
+        }
+
+        function length() {
+            return _length;
+        }
+
+        function reset() {
+            _boxes = [];
+            _length = 0;
+            _fading_boxes = [];
+        }
+
+        return {
+            add: add,
+            get: get,
+            length: length,
+            reset: reset,
+            getFading: getFading,
+            removeFromFading: removeFromFading,
+            addToFading: addToFading
+        };
+    })();
+
+
 
 
     ///// Drawers Collection
@@ -448,10 +567,6 @@
         };
     })();
 
-
-    var boxes = [];
-
-
     ///// Start Up
 
     var DOTS = Sketch.create({
@@ -490,7 +605,7 @@
         for (var p = 0; p < leng; p++) {
             var ds = dots.getFourCorners( allDots[p] );
             if (ds.length !== 4) { continue; }
-            boxes.push(new Box( ds[0], ds[1], ds[2], ds[3] ) );
+            boxes.add(new Box( ds[0], ds[1], ds[2], ds[3] ) );
         }
 
 
@@ -511,14 +626,20 @@
     DOTS.draw = function() {
 
         var allDots = dots.get();
-        var leng = allDots.length;
-        while (leng--) {
-            allDots[leng].draw( DOTS );
+        var q = allDots.length;
+        while (q--) {
+            allDots[q].draw( DOTS );
         }
 
         var allDrawers = drawers.get();
         for (var i = 0, len = allDrawers.length; i < len; i++) {
             allDrawers[i].drawToNeighbor();
+        }
+
+        var fadingBoxes = boxes.getFading();
+        var p = fadingBoxes.length;
+        while (p--) {
+            fadingBoxes[p].fill(DOTS);
         }
 
     };
@@ -528,7 +649,7 @@
         dots.reset();
         lines.reset();
         drawers.reset();
-        boxes = [];
+        boxes.reset();
         DOTS.clear();
         DOTS.setup();
         DOTS.start();
@@ -542,6 +663,7 @@
     gui.add(CONST, 'DRAWERS_COUNT', 1, 150).step(1).onFinishChange( changeHandler );
     gui.add(CONST, 'BOX_SIZE', 5, 80).step(1).onFinishChange( changeHandler );
     gui.add(CONST, 'DRAW_SPEED', 0.05, 1).step(0.01);
+    gui.add(CONST, 'FADE_SPEED', 0.05, 0.5).step(0.01);
     gui.add(DOTS, 'FILL_COLORS', { MonoBlue: 'MONOBLUE', Grayscale: 'GRAYSCALE', Multi: 'MULTI' }).onFinishChange( changeColor );
     gui.add(DOTS, 'reset');
 
