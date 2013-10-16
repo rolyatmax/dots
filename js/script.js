@@ -262,23 +262,30 @@
 
         // returns all four neighbors)
         function getAllNeighborsOf(dot) {
+            if (dot.neighbors) return dot.neighbors;
+
             var neighbors = [];
             neighbors.push( get(dot.x + 1, dot.y) );
             neighbors.push( get(dot.x, dot.y + 1) );
             neighbors.push( get(dot.x - 1, dot.y) );
             neighbors.push( get(dot.x, dot.y - 1) );
+
+            dot.neighbors = neighbors;
             return neighbors;
         }
 
         // with 'dot' as the upper LH corner, get the next 3 dots that make up the box
         function getFourCorners(dot) {
+            if (dot.corners) return dot.corners;
+
             var corners = [
                 dot,
                 get( dot.x + 1, dot.y ),
                 get( dot.x + 1, dot.y + 1 ),
                 get( dot.x, dot.y + 1)
             ];
-            return _.compact(corners);
+            dot.corners = _.compact(corners);
+            return dot.corners;
         }
 
         function reset() {
@@ -617,6 +624,13 @@
             drawers.create( d.x, d.y );
         }
 
+        ///// draw the grid
+
+        var q = allDots.length;
+        while (q--) {
+            allDots[q].draw( DOTS );
+        }
+
     };
 
     DOTS.update = function() {
@@ -626,12 +640,6 @@
     };
 
     DOTS.draw = function() {
-
-        var allDots = dots.get();
-        var q = allDots.length;
-        while (q--) {
-            allDots[q].draw( DOTS );
-        }
 
         var allDrawers = drawers.get();
         for (var i = 0, len = allDrawers.length; i < len; i++) {
