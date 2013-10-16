@@ -3,11 +3,12 @@
     ///// Constants
 
     var CONST = {
-        BOX_SIZE: 15,
+        BOX_SIZE: 25,
         LIGHT_GRAY: '#aaaaaa',
         LIGHTER_GRAY: '#dddddd',
         DOT_SIZE: 1,
-        DRAWERS_COUNT: 50,
+        DRAWERS_COUNT: 15,
+        DRAW_SPEED: 0.1,
         FILL_COLORS: '#F0E3DF #E3DFF0 #DFEDF0 #DFF0DF'.split(' ')
     };
 
@@ -325,15 +326,69 @@
 
         ///// Drawer Class
 
+        var Animator = function(dot1, dot2, line, drawer) {
+            this.drawer = drawer;
+            this.line = line;
+            this.destDot = dot2;
+            this.next = dot1.coords();
+            this.coords2 = dot2.coords();
+            this.cur = {};
+            this.complete = false;
+        };
+
+        Animator.prototype = {
+            update: function() {
+                if (this.complete) return;
+
+                this.cur = {
+                    x: this.next.x,
+                    y: this.next.y
+                };
+
+                var dx = (this.coords2.x - this.cur.x) * CONST.DRAW_SPEED;
+                var dy = (this.coords2.y - this.cur.y) * CONST.DRAW_SPEED;
+
+                if (abs(dx) < 1 && abs(dy) < 1) {
+                    this.next = this.coords2;
+                    this.draw(DOTS);
+                    this.drawer.completedAnimation();
+                    return;
+                }
+
+                this.next = {
+                    x: this.cur.x + dx,
+                    y: this.cur.y + dy
+                };
+
+                this.draw(DOTS);
+            },
+
+            draw: function(ctx) {
+
+                ctx.strokeStyle = CONST.LIGHTER_GRAY;
+                ctx.beginPath();
+                ctx.moveTo(this.cur.x, this.cur.y);
+                ctx.lineTo(this.next.x, this.next.y);
+                ctx.stroke();
+
+            }
+        };
+
         var Drawer = function( startingDot ) {
             this.location = startingDot;
             this.dead = false;
+            this.animating = false;
             this.id = _.uniqueId();
         };
 
         Drawer.prototype = {
             drawToNeighbor: function() {
                 if (this.dead) return;
+
+                if (this.animator) {
+                    this.animator.update();
+                    return;
+                }
 
                 var current = this.location;
 
@@ -355,14 +410,18 @@
 
                 var i = random(someLines.length) | 0;
                 var line = someLines[i];
-                line.draw(DOTS);
 
                 _lines.push(line);
 
-                var dot = (line.dot1 === this.location) ? line.dot2 : line.dot1;
-                this.location = dot;
+                var destDot = (line.dot1 === this.location) ? line.dot2 : line.dot1;
+                this.animator = new Animator(this.location, destDot, line, this);
 
-                line.alertBoxes();
+            },
+            completedAnimation: function() {
+                this.location = this.animator.destDot;
+                this.animator.line.drawn = true;
+                this.animator.line.alertBoxes();
+                this.animator = null;
             },
             remove: function() {
                 this.dead = true;
@@ -470,6 +529,7 @@
     var gui = new dat.GUI();
     gui.add(CONST, 'DRAWERS_COUNT', 1, 150).step(1).onFinishChange( changeHandler );
     gui.add(CONST, 'BOX_SIZE', 5, 80).step(1).onFinishChange( changeHandler );
+    gui.add(CONST, 'DRAW_SPEED', 0.05, 1).step(0.01);
     gui.add(DOTS, 'reset');
 
     function changeHandler(val) {
