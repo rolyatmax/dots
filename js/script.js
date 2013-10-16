@@ -425,6 +425,7 @@
 
         var _drawers = [];
         var _lines = [];
+        var _alive = [];
 
         function create( x, y ) {
             // if x and y are coords, then get the dot from the collection
@@ -433,6 +434,7 @@
 
             var drawer = new Drawer( dot );
             _drawers.push( drawer );
+            addToAlive( drawer );
 
         }
 
@@ -454,8 +456,17 @@
             _drawers.splice( i, 1);
         }
 
+        function addToAlive( drawer ) {
+            _alive.push( drawer );
+        }
+
+        function removeFromAlive( drawer ) {
+            var i = _.indexOf(_alive, drawer);
+            _alive.splice( i, 1);
+        }
+
         function getAlive() {
-            return _.where(_drawers, { dead: false });
+            return _alive;
         }
 
         function reset() {
@@ -563,6 +574,8 @@
                 this.animator = null;
             },
             remove: function() {
+                removeFromAlive( this );
+
                 this.dead = true;
                 // removeDrawer(this);
             }
@@ -572,7 +585,9 @@
             create: create,
             get: get,
             reset: reset,
-            getAlive: getAlive
+            getAlive: getAlive,
+            removeFromAlive: removeFromAlive,
+            addToAlive: addToAlive
         };
     })();
 
