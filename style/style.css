@@ -7,7 +7,7 @@ html, body {
     font-family: 'Helvetica Neue', sans-serif;
 }
 
-h1 {
+#container h1 {
 	color: white;
 	text-shadow: 1px 1px 11px rgba(0,0,0,0.1);
 	position: absolute;
