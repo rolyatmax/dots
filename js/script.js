@@ -1,3 +1,12 @@
+
+// TO DO
+// -----
+// * separate into a few different files
+// * fix colors to be rgba
+// * add fade for the boxes
+// * examine performance issues re: # of dots
+
+
 (function(){
 
     ///// Constants
