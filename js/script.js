@@ -9,7 +9,9 @@
         DOT_SIZE: 1,
         DRAWERS_COUNT: 15,
         DRAW_SPEED: 0.1,
-        FILL_COLORS: '#F0E3DF #E3DFF0 #DFEDF0 #DFF0DF'.split(' ')
+        MULTI: '#F0E3DF #E3DFF0 #DFEDF0 #DFF0DF'.split(' '),
+        GRAYSCALE: '#d8d8d8 #e0e0e0 #e8e8e8 #f0f0f0'.split(' '),
+        MONOBLUE: 'rgba(115,129,158,0.6) rgba(115,129,158,0.45) rgba(115,129,158,0.3) rgba(115,129,158,0.1)'.split(' ')
     };
 
 
@@ -127,7 +129,7 @@
             var coords = dot.coords();
             ctx.beginPath();
             ctx.rect(coords.x, coords.y, CONST.BOX_SIZE, CONST.BOX_SIZE);
-            ctx.fillStyle = random(CONST.FILL_COLORS);
+            ctx.fillStyle = random(DOTS.FILL_COLORS);
             ctx.fill();
         },
 
@@ -348,7 +350,7 @@
                 var dx = (this.coords2.x - this.cur.x) * CONST.DRAW_SPEED;
                 var dy = (this.coords2.y - this.cur.y) * CONST.DRAW_SPEED;
 
-                if (abs(dx) < 1 && abs(dy) < 1) {
+                if (abs(dx) < 0.05 && abs(dy) < 0.05) {
                     this.next = this.coords2;
                     this.draw(DOTS);
                     this.drawer.completedAnimation();
@@ -523,6 +525,7 @@
         DOTS.start();
     };
 
+    DOTS.FILL_COLORS = CONST.MONOBLUE;
 
     ////// Setup dat.GUI
 
@@ -530,12 +533,15 @@
     gui.add(CONST, 'DRAWERS_COUNT', 1, 150).step(1).onFinishChange( changeHandler );
     gui.add(CONST, 'BOX_SIZE', 5, 80).step(1).onFinishChange( changeHandler );
     gui.add(CONST, 'DRAW_SPEED', 0.05, 1).step(0.01);
+    gui.add(DOTS, 'FILL_COLORS', { MonoBlue: 'MONOBLUE', Grayscale: 'GRAYSCALE', Multi: 'MULTI' }).onFinishChange( changeColor );
     gui.add(DOTS, 'reset');
 
     function changeHandler(val) {
         DOTS.reset();
     }
-
+    function changeColor(val) {
+        DOTS.FILL_COLORS = CONST[val];
+    }
     ///// Exports
 
     window.DOTS = DOTS;
