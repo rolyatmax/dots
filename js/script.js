@@ -2,6 +2,7 @@
 // TO DO
 // -----
 // * separate into a few different files
+// * add sound cues as boxes fill in
 
 
 (function(){
@@ -217,8 +218,11 @@
     var dots = (function(){
 
         var _dots = {};
-        var _length = 0;
         var _dots_array = [];
+
+        function create( x, y ) {
+            add( new Dot( x, y ) );
+        }
 
         function add( dot ) {
             if (!dot) { return; }
@@ -231,8 +235,6 @@
             _dots[x][y] = dot;
 
             _dots_array.push(dot);
-
-            _length += 1;
         }
 
         function get( x, y ) {
@@ -245,10 +247,6 @@
             y = 'y' + y;
 
             return _dots[x] && _dots[x][y];
-        }
-
-        function length() {
-            return _length;
         }
 
         // returns two neighbors (the neighbor below and to the right)
@@ -289,18 +287,16 @@
 
         function reset() {
             _dots = {};
-            _length = 0;
             _dots_array = [];
         }
 
         return {
-            add: add,
             get: get,
-            length: length,
             getNeighborsOf: getNeighborsOf,
             getAllNeighborsOf: getAllNeighborsOf,
             getFourCorners: getFourCorners,
-            reset: reset
+            reset: reset,
+            create: create
         };
     })();
 
@@ -310,7 +306,6 @@
     var lines = (function(){
 
         var _lines = {};
-        var _length = 0;
         var _lines_array = [];
 
         function add( line ) {
@@ -323,8 +318,6 @@
             _lines[dot1.id][dot2.id] = line;
 
             _lines_array.push(line);
-
-            _length += 1;
         }
 
         // doesn't matter what order dot1 and dot2 are passed in
@@ -342,20 +335,14 @@
 
         }
 
-        function length() {
-            return _length;
-        }
-
         function reset() {
             _lines = {};
-            _length = 0;
             _lines_array = [];
         }
 
         return {
             add: add,
             get: get,
-            length: length,
             reset: reset
         };
     })();
@@ -366,15 +353,16 @@
     var boxes = (function(){
 
         var _boxes = [];
-        var _length = 0;
         var _fading_boxes = [];
+
+        function create( cornerDots ) {
+            add(new Box( cornerDots[0], cornerDots[1], cornerDots[2], cornerDots[3] ) );
+        }
 
         function add( box ) {
             if (!box) { return; }
 
             _boxes.push(box);
-
-            _length += 1;
         }
 
         function get() {
@@ -394,20 +382,14 @@
             _fading_boxes.push(box);
         }
 
-        function length() {
-            return _length;
-        }
-
         function reset() {
             _boxes = [];
-            _length = 0;
             _fading_boxes = [];
         }
 
         return {
-            add: add,
+            create: create,
             get: get,
-            length: length,
             reset: reset,
             getFading: getFading,
             removeFromFading: removeFromFading,
@@ -607,7 +589,7 @@
 
         for (var x = 0; x < x_limit; x++) {
             for (var y = 0; y < y_limit; y++) {
-                dots.add( new Dot( x, y ) );
+                dots.create( x, y );
             }
         }
 
@@ -628,7 +610,7 @@
         for (var p = 0; p < leng; p++) {
             var ds = dots.getFourCorners( allDots[p] );
             if (ds.length !== 4) { continue; }
-            boxes.add(new Box( ds[0], ds[1], ds[2], ds[3] ) );
+            boxes.create( ds );
         }
 
 
