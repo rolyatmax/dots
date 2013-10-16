@@ -12,9 +12,9 @@
         LIGHT_GRAY: '#aaaaaa',
         LINE_COLOR: '#bbb',
         DOT_SIZE: 1,
-        DRAWERS_COUNT: 15,
+        DRAWERS_COUNT: 10,
         DRAW_SPEED: 0.1,
-        FADE_SPEED: 0.1,
+        FADE_SPEED: 0.05,
         FILLED_BOX_OFFSET: 1,
         MULTI: [
             {r: 129, g: 116, b: 179, a: 0.6},
@@ -56,8 +56,8 @@
 
             ///// build the dots
 
-            var x_limit = ceil(this.width / CONST.BOX_SIZE);
-            var y_limit = ceil(this.height / CONST.BOX_SIZE);
+            var x_limit = ceil(this.width / DOTS.BOX_SIZE);
+            var y_limit = ceil(this.height / DOTS.BOX_SIZE);
 
             for (var x = 0; x < x_limit; x++) {
                 for (var y = 0; y < y_limit; y++) {
@@ -87,7 +87,7 @@
 
 
             ///// start some drawers
-            for (var k = 0; k < CONST.DRAWERS_COUNT; k++) {
+            for (var k = 0; k < DOTS.DRAWERS_COUNT; k++) {
                 var d = random(allDots);
                 drawers.create( d.x, d.y );
             }
@@ -145,10 +145,10 @@
     ////// Setup dat.GUI
 
     var gui = new dat.GUI();
-    gui.add(DOTS, 'DRAWERS_COUNT', 1, 150).step(1).onFinishChange( changeHandler );
-    gui.add(DOTS, 'BOX_SIZE', 5, 80).step(1).onFinishChange( changeHandler );
+    gui.add(DOTS, 'DRAWERS_COUNT', 1, 100).step(1).onFinishChange( changeHandler );
+    gui.add(DOTS, 'BOX_SIZE', 10, 80).step(1).onFinishChange( changeHandler );
     gui.add(DOTS, 'DRAW_SPEED', 0.05, 1).step(0.01);
-    gui.add(DOTS, 'FADE_SPEED', 0.05, 0.5).step(0.01);
+    gui.add(DOTS, 'FADE_SPEED', 0.01, 0.5).step(0.01);
     gui.add(DOTS, 'FILL_COLORS', { MonoBlue: 'MONOBLUE', Grayscale: 'GRAYSCALE', Multi: 'MULTI' }).onFinishChange( changeColor );
     gui.add(DOTS, 'reset');
 
