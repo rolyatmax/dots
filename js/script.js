@@ -5,7 +5,7 @@
     var CONST = {
         BOX_SIZE: 25,
         LIGHT_GRAY: '#aaaaaa',
-        LIGHTER_GRAY: '#dddddd',
+        LIGHTER_GRAY: '#bbbbbb',
         DOT_SIZE: 1,
         DRAWERS_COUNT: 15,
         DRAW_SPEED: 0.1,
