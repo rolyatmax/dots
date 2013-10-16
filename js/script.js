@@ -2,12 +2,15 @@
 
     ///// Constants
 
-    var BOX_SIZE = 15;
-    var LIGHT_GRAY = '#aaaaaa';
-    var LIGHTER_GRAY = '#dddddd';
-    var DOT_SIZE = 1;
-    var DRAWERS_COUNT = 50;
-    var FILL_COLORS = '#F0E3DF #E3DFF0 #DFEDF0 #DFF0DF'.split(' ');
+    var CONST = {
+        BOX_SIZE: 15,
+        LIGHT_GRAY: '#aaaaaa',
+        LIGHTER_GRAY: '#dddddd',
+        DOT_SIZE: 1,
+        DRAWERS_COUNT: 50,
+        FILL_COLORS: '#F0E3DF #E3DFF0 #DFEDF0 #DFF0DF'.split(' ')
+    };
+
 
     ///// Classes
 
@@ -21,14 +24,14 @@
         draw: function(ctx) {
             var coords = this.coords();
 
-            ctx.fillStyle = LIGHT_GRAY;
-            ctx.fillRect( coords.x, coords.y, DOT_SIZE, DOT_SIZE );
+            ctx.fillStyle = CONST.LIGHT_GRAY;
+            ctx.fillRect( coords.x, coords.y, CONST.DOT_SIZE, CONST.DOT_SIZE );
             return this;
         },
         coords: function() {
             return {
-                x: this.x * BOX_SIZE,
-                y: this.y * BOX_SIZE
+                x: this.x * CONST.BOX_SIZE,
+                y: this.y * CONST.BOX_SIZE
             };
         }
     };
@@ -46,7 +49,7 @@
             var coords1 = this.dot1.coords();
             var coords2 = this.dot2.coords();
 
-            ctx.strokeStyle = LIGHTER_GRAY;
+            ctx.strokeStyle = CONST.LIGHTER_GRAY;
             ctx.beginPath();
             ctx.moveTo(coords1.x, coords1.y);
             ctx.lineTo(coords2.x, coords2.y);
@@ -122,8 +125,8 @@
             var dot = this.getOriginDot();
             var coords = dot.coords();
             ctx.beginPath();
-            ctx.rect(coords.x, coords.y, BOX_SIZE, BOX_SIZE);
-            ctx.fillStyle = random(FILL_COLORS);
+            ctx.rect(coords.x, coords.y, CONST.BOX_SIZE, CONST.BOX_SIZE);
+            ctx.fillStyle = random(CONST.FILL_COLORS);
             ctx.fill();
         },
 
@@ -205,6 +208,7 @@
         function reset() {
             _dots = {};
             _length = 0;
+            _dots_array = [];
         }
 
         return {
@@ -390,9 +394,9 @@
 
         ///// build the dots
 
-        var x_limit = ceil(DOTS.width / BOX_SIZE);
-        var y_limit = ceil(DOTS.height / BOX_SIZE);
-        
+        var x_limit = ceil(DOTS.width / CONST.BOX_SIZE);
+        var y_limit = ceil(DOTS.height / CONST.BOX_SIZE);
+
         for (var x = 0; x < x_limit; x++) {
             for (var y = 0; y < y_limit; y++) {
                 dots.add( new Dot( x, y ) );
@@ -421,7 +425,7 @@
 
 
         ///// start some drawers
-        for (var k = 0; k < DRAWERS_COUNT; k++) {
+        for (var k = 0; k < CONST.DRAWERS_COUNT; k++) {
             var d = random(allDots);
             drawers.create( d.x, d.y );
         }
@@ -459,6 +463,18 @@
         DOTS.setup();
         DOTS.start();
     };
+
+
+    ////// Setup dat.GUI
+
+    var gui = new dat.GUI();
+    gui.add(CONST, 'DRAWERS_COUNT', 1, 150).step(1).onFinishChange( changeHandler );
+    gui.add(CONST, 'BOX_SIZE', 5, 80).step(1).onFinishChange( changeHandler );
+    gui.add(DOTS, 'reset');
+
+    function changeHandler(val) {
+        DOTS.reset();
+    }
 
     ///// Exports
 

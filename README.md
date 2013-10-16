@@ -3,7 +3,9 @@ Dots
 
 Inspired by the game [Dots & Boxes](http://en.wikipedia.org/wiki/Dots_and_Boxes) and the wall drawings of artist [Sol LeWitt](http://en.wikipedia.org/wiki/Sol_LeWitt). I have some plans to add some code to manage animations - this is all I've got right now, though.
 
-I used [Sketch.js](https://github.com/soulwire/sketch.js) to set up my canvas (I highly recommend it).
+I used [Sketch.js](https://github.com/soulwire/sketch.js) to set up my canvas (I highly recommend it). 
+
+Also had some help from [dat.GUI](https://code.google.com/p/dat-gui/).
 
 See it in action at [tbaldw.in/dots](http://tbaldw.in/dots).
 
