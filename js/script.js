@@ -17,6 +17,7 @@
         DRAWERS_COUNT: 15,
         DRAW_SPEED: 0.1,
         FADE_SPEED: 0.1,
+        FILLED_BOX_OFFSET: 1,
         MULTI: [
             {r: 129, g: 116, b: 179, a: 0.6},
             {r: 116, g: 150, b: 179, a: 0.6},
@@ -179,8 +180,10 @@
             /// get the upper LH dot
             var dot = this.originDot || this.getOriginDot();
             var coords = dot.coords();
+            var offset = CONST.FILLED_BOX_OFFSET;
+            var dimen = CONST.BOX_SIZE - (offset * 2);
             ctx.beginPath();
-            ctx.rect(coords.x + 1, coords.y + 1, CONST.BOX_SIZE - 2, CONST.BOX_SIZE - 2);
+            ctx.rect(coords.x + offset, coords.y + offset, dimen, dimen);
             ctx.fillStyle = 'white';
             ctx.fill();
             ctx.strokeStyle = 'rgba(255,255,255,0.5)';
@@ -648,6 +651,10 @@
             fadingBoxes[p].fill(DOTS);
         }
 
+    };
+
+    DOTS.resize = function() {
+        this.reset();
     };
 
     DOTS.reset = function() {
