@@ -127,37 +127,17 @@
                     return;
                 }
 
-                var current = this.location;
+                var allDots = dots.get();
+                var destDot = random( allDots );
+                var line;
 
-                var neighbors = dots.getAllNeighborsOf(current);
-
-                var someLines = _.map(neighbors, function(dot){
-                    if (!dot) return false;
-                    var line = lines.get(dot, current);
-                    if (!line) return false;
-                    if (checkLines(line)) return false;
-                    return line;
-                });
-
-                someLines = _.compact(someLines);
-
-                if (!someLines.length) {
-                    return this.remove();
-                }
-
-                var i = random(someLines.length) | 0;
-                var line = someLines[i];
-
-                _lines.push(line);
-
-                var destDot = (line.dot1 === this.location) ? line.dot2 : line.dot1;
                 this.animator = new Animator(this.location, destDot, line, this);
 
             },
             completedAnimation: function() {
                 this.location = this.animator.destDot;
-                this.animator.line.drawn = true;
-                this.animator.line.alertBoxes();
+                // this.animator.line.drawn = true;
+                // this.animator.line.alertBoxes();
                 this.animator = null;
             },
             remove: function() {

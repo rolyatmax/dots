@@ -12,8 +12,8 @@
         LIGHT_GRAY: '#aaaaaa',
         LINE_COLOR: '#bbb',
         DOT_SIZE: 1,
-        DRAWERS_COUNT: 10,
-        DRAW_SPEED: 0.1,
+        DRAWERS_COUNT: 1,
+        DRAW_SPEED: 0.08,
         FADE_SPEED: 0.05,
         FILLED_BOX_OFFSET: 1,
         MULTI: [
