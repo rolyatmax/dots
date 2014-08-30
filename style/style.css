@@ -11,10 +11,6 @@ html, body {
 	padding: 2px;
 }
 
-.info_btn {
-	top: 0;
-}
-
 #container h1 {
 	color: white;
 	text-shadow: 1px 1px 11px rgba(0,0,0,0.1);
