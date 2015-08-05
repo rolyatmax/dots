@@ -1,9 +1,8 @@
-
 ///// Lines
 
 (function(){
 
-	///// Line Class
+    ///// Line Class
 
     var Line = function( dot1, dot2 ) {
         this.id = _.uniqueId('l');

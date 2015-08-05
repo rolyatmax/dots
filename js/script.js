@@ -1,10 +1,4 @@
-
-// TO DO
-// -----
-// * add sound cues as boxes fill in?
-
 (function(){
-
     ///// Constants
 
     var CONST = {
@@ -35,9 +29,6 @@
             {r: 115, g: 129, b: 158, a: 0.2}
         ]
     };
-
-
-
 
     ///// Set Up Canvas with Sketch.js
 
@@ -78,7 +69,7 @@
 
             }
 
-            ///// build the boxes 
+            ///// build the boxes
             for (var p = 0; p < leng; p++) {
                 var ds = dots.getFourCorners( allDots[p] );
                 if (ds.length !== 4) { continue; }
@@ -136,33 +127,8 @@
             this.setup();
             this.start();
         }
-
     });
-
-
-
-
-    ////// Setup dat.GUI
-
-    var gui = new dat.GUI();
-    gui.add(DOTS, 'DRAWERS_COUNT', 1, 100).step(1).onFinishChange( changeHandler );
-    gui.add(DOTS, 'BOX_SIZE', 10, 80).step(1).onFinishChange( changeHandler );
-    gui.add(DOTS, 'DRAW_SPEED', 0.05, 1).step(0.01);
-    gui.add(DOTS, 'FADE_SPEED', 0.01, 0.5).step(0.01);
-    gui.add(DOTS, 'FILL_COLORS', { MonoBlue: 'MONOBLUE', Grayscale: 'GRAYSCALE', Multi: 'MULTI' }).onFinishChange( changeColor );
-    gui.add(DOTS, 'reset');
-
-    function changeHandler(val) {
-        DOTS.reset();
-    }
-    function changeColor(val) {
-        DOTS.FILL_COLORS = DOTS[val];
-    }
-
-
-
 
     ///// Exports
     window.DOTS = DOTS;
-
 })();

@@ -1,6 +1,4 @@
-
 html, body {
-
     background: #fdfdfd;
     overflow: hidden;
     margin: 0;
@@ -9,13 +7,4 @@ html, body {
 
 #container {
 	padding: 2px;
-}
-
-#container h1 {
-	color: white;
-	text-shadow: 1px 1px 11px rgba(0,0,0,0.1);
-	position: absolute;
-	bottom: 0;
-	left: 30px;
-	font-size: 50px;
 }

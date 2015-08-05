@@ -1,0 +1,28 @@
+{
+  "name": "dots",
+  "version": "1.0.0",
+  "description": "Dots",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "mkdir -p build && node_modules/.bin/watchify js/script.js -o build/build.js -v",
+    "build": "mkdir -p build && node_modules/.bin/browserify js/script.js -o build/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rolyatmax/dots.git"
+  },
+  "author": "Taylor Baldwin <taylorbaldwin@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rolyatmax/dots/issues"
+  },
+  "homepage": "https://github.com/rolyatmax/dots",
+  "devDependencies": {
+    "babel-eslint": "4.0.5",
+    "eslint": "1.0.0"
+  },
+  "dependencies": {
+    "sketch": "git+ssh://git@github.com:soulwire/sketch.js.git"
+  }
+}
