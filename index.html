@@ -10,33 +10,13 @@
         <div id="container" class="content_wrapper">
             <h1>Dots.</h1>
         </div>
-        <script src="js/libs/dat.gui.min.js"></script>
         <script src="js/libs/info.js"></script>
         <script src="js/libs/Markdown.Converter.js"></script>
-        <script src="js/libs/underscore.js"></script>
         <script src="js/libs/sketch.min.js"></script>
 
-        <script src="js/dots.js"></script>
-        <script src="js/lines.js"></script>
-        <script src="js/boxes.js"></script>
-        <script src="js/drawers.js"></script>
-        <script src="js/script.js"></script>
-        <script>
-        
-        new Info({
-            url: 'README.md',
-            el: 'info',
-            container: 'container',
-            keyTrigger: true
-        });
+        <script src="build/build.js"></script>
 
-        window.onload = function() {
-            // DOTS.start();
-        };
-
-        </script>
         <script type="text/javascript">
-
           var _gaq = _gaq || [];
           _gaq.push(['_setAccount', 'UA-36884625-1']);
           _gaq.push(['_trackPageview']);
@@ -46,7 +26,6 @@
             ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
           })();
-
         </script>
     </body>
 </html>
