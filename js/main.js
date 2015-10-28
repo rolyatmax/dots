@@ -26,7 +26,6 @@ function httpGet(url) {
 
 
 httpGet('README.md').then(readme => {
-    console.log('README', readme);
     new Info({
         html: markdown.toHTML(readme),
         el: 'info',
