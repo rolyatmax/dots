@@ -1,6 +1,7 @@
+/* globals Info */
+
 require('./sketch');
 require('./gui');
-
 
 new Info({
     url: 'README.md',
