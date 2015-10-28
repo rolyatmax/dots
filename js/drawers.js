@@ -4,8 +4,6 @@ import _ from 'underscore';
 import {settings} from './settings';
 import DOTS from './sketch';
 
-let {DRAW_SPEED, LINE_COLOR} = settings;
-
 
 let {abs} = Math;
 
@@ -33,8 +31,8 @@ class Animator {
             y: this.next.y
         };
 
-        let dx = (this.coords2.x - this.cur.x) * DRAW_SPEED;
-        let dy = (this.coords2.y - this.cur.y) * DRAW_SPEED;
+        let dx = (this.coords2.x - this.cur.x) * settings.DRAW_SPEED;
+        let dy = (this.coords2.y - this.cur.y) * settings.DRAW_SPEED;
 
         if (abs(dx) < 0.05 && abs(dy) < 0.05) {
             this.next = this.coords2;
@@ -52,7 +50,7 @@ class Animator {
     }
 
     draw(ctx) {
-        ctx.strokeStyle = LINE_COLOR;
+        ctx.strokeStyle = settings.LINE_COLOR;
         ctx.beginPath();
         ctx.moveTo(this.cur.x, this.cur.y);
         ctx.lineTo(this.next.x, this.next.y);

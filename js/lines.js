@@ -1,7 +1,6 @@
 import {uniqueId} from 'underscore';
 import {settings} from './settings';
 
-let {LINE_COLOR} = settings;
 
 let _lines = {};
 let _linesArray = [];
@@ -19,7 +18,7 @@ class Line {
         let coords1 = this.dot1.coords();
         let coords2 = this.dot2.coords();
 
-        ctx.strokeStyle = LINE_COLOR;
+        ctx.strokeStyle = settings.LINE_COLOR;
         ctx.beginPath();
         ctx.moveTo(coords1.x, coords1.y);
         ctx.lineTo(coords2.x, coords2.y);

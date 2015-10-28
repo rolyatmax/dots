@@ -2,7 +2,6 @@ import _ from 'underscore';
 import lines from './lines';
 import {settings} from './settings';
 
-let {FILLED_BOX_OFFSET, FADE_SPEED, BOX_SIZE, FILL_COLORS} = settings;
 
 class Color {
     constructor(opts) {
@@ -21,7 +20,7 @@ class Color {
     }
 
     fadeInStep() {
-        let da = (this.a - this.curAlpha) * FADE_SPEED;
+        let da = (this.a - this.curAlpha) * settings.FADE_SPEED;
         this.curAlpha += da;
         if (da < 0.00001) {
             this.curAlpha = this.a;
@@ -88,8 +87,8 @@ class Box {
         /// get the upper LH dot
         let dot = this.originDot || this.getOriginDot();
         let coords = dot.coords();
-        let offset = FILLED_BOX_OFFSET;
-        let dimen = BOX_SIZE - (offset * 2);
+        let offset = settings.FILLED_BOX_OFFSET;
+        let dimen = settings.BOX_SIZE - (offset * 2);
         ctx.beginPath();
         ctx.rect(coords.x + offset, coords.y + offset, dimen, dimen);
         ctx.fillStyle = 'white';
@@ -99,7 +98,7 @@ class Box {
         ctx.closePath();
 
         ctx.beginPath();
-        ctx.rect(coords.x, coords.y, BOX_SIZE, BOX_SIZE);
+        ctx.rect(coords.x, coords.y, settings.BOX_SIZE, settings.BOX_SIZE);
         ctx.fillStyle = this.color.fadeInStep().toRGBA();
         ctx.fill();
     }
@@ -111,7 +110,7 @@ class Box {
     }
 
     startFade() {
-        let colorData = random(FILL_COLORS);
+        let colorData = random(settings.FILL_COLORS);
         colorData.box = this;
         this.color = new Color(colorData);
         this.fading = true;

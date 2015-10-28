@@ -1,6 +1,5 @@
 import {settings} from './settings';
 
-let {LIGHT_GRAY, DOT_SIZE, BOX_SIZE} = settings;
 
 let _dots = {};
 let _dotsArray = [];
@@ -14,15 +13,15 @@ class Dot {
 
     draw(ctx) {
         let coords = this.coords();
-        ctx.fillStyle = LIGHT_GRAY;
-        ctx.fillRect(coords.x, coords.y, DOT_SIZE, DOT_SIZE);
+        ctx.fillStyle = settings.LIGHT_GRAY;
+        ctx.fillRect(coords.x, coords.y, settings.DOT_SIZE, settings.DOT_SIZE);
         return this;
     }
 
     coords() {
         return {
-            x: this.x * BOX_SIZE,
-            y: this.y * BOX_SIZE
+            x: this.x * settings.BOX_SIZE,
+            y: this.y * settings.BOX_SIZE
         };
     }
 }
