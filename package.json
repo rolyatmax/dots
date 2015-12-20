@@ -12,7 +12,6 @@
   "dependencies": {
     "babel-polyfill": "^6.3.14",
     "dat-gui": "^0.5.0",
-    "markdown": "^0.5.0",
     "sketch-js": "git+ssh://git@github.com:soulwire/sketch.js.git#e415b8f",
     "underscore": "^1.8.3"
   },
@@ -22,11 +21,13 @@
     "browserify": "^11.2.0",
     "eslint": "^1.7.3",
     "eslint-plugin-react": "^3.6.3",
+    "markdownify": "^0.1.0",
     "watchify": "^3.4.0"
   },
   "browserify": {
     "transform": [
-      "babelify"
+      "babelify",
+      "markdownify"
     ]
   }
 }
