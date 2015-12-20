@@ -14,10 +14,11 @@ let DOTS = Sketch.create({
 });
 
 DOTS = Object.assign(DOTS, {
-    setup: function() {
+    setup() {
         let xLimit = ceil(this.width / settings.BOX_SIZE);
         let yLimit = ceil(this.height / settings.BOX_SIZE);
 
+        // create all the dots
         for (let x = 0; x < xLimit; x++) {
             for (let y = 0; y < yLimit; y++) {
                 dots.create(x, y);
@@ -25,58 +26,42 @@ DOTS = Object.assign(DOTS, {
         }
 
         let allDots = dots.get();
-        let leng = allDots.length;
-        for (let i = 0; i < leng; i++) {
-            let dot = allDots[i];
-            let neighbors = dots.getNeighborsOf(dot);
 
-            lines.create(dot, neighbors[0]);
-            lines.create(dot, neighbors[1]);
-        }
+        // create all the lines
+        allDots.forEach(dot => {
+            dots.getNeighborsOf(dot).forEach(neighbor => lines.create(dot, neighbor));
+        });
 
-        for (let p = 0; p < leng; p++) {
-            let ds = dots.getFourCorners(allDots[p]);
-            if (ds.length !== 4) { continue; }
+        // create all the boxes
+        allDots.forEach(dot => {
+            let ds = dots.getFourCorners(dot);
+            if (ds.length !== 4) { return; }
             boxes.create(ds);
-        }
+        });
 
+        // create all the drawers
         for (let k = 0; k < settings.DRAWERS_COUNT; k++) {
-            let d = random(allDots);
-            drawers.create(d.x, d.y);
+            let {x, y} = random(allDots);
+            drawers.create(x, y);
         }
 
-        let q = allDots.length;
-        while (q--) {
-            allDots[q].draw(this);
-        }
-
+        // draw all the dots
+        allDots.forEach(dot => dot.draw(this));
     },
 
-    update: function() {
-        if (!drawers.getAlive().length) {
-            this.reset();
-        }
+    draw() {
+        drawers.get().forEach(drawer => drawer.drawToNeighbor());
+        boxes.getFading().forEach(box => box.fill(this));
     },
 
-    draw: function() {
-        let allDrawers = drawers.get();
-        for (let i = 0, len = allDrawers.length; i < len; i++) {
-            allDrawers[i].drawToNeighbor();
-        }
-
-        let fadingBoxes = boxes.getFading();
-        let p = fadingBoxes.length;
-        while (p--) {
-            fadingBoxes[p].fill(this);
-        }
-    },
-
-    resize: function() {
+    resize() {
         this.reset();
     },
 
-    reset: function() {
+    reset() {
         this.stop();
+        // FIXME: move state to one spot so we don't have to try to reset
+        // state that's spread all over
         dots.reset();
         lines.reset();
         drawers.reset();

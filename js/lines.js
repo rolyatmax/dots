@@ -1,13 +1,11 @@
-import {uniqueId} from 'underscore';
 import {settings} from './settings';
 
 
 let _lines = {};
-let _linesArray = [];
+
 
 class Line {
     constructor(dot1, dot2) {
-        this.id = uniqueId('l');
         this.dot1 = dot1;
         this.dot2 = dot2;
         this.boxes = [];
@@ -32,43 +30,27 @@ class Line {
     }
 
     alertBoxes() {
-        let len = this.boxes.length;
-        while (len--) {
-            this.boxes[len].lineDrawn();
-        }
+        this.boxes.forEach(box => box.lineDrawn());
     }
 }
 
-function add(line) {
-    let dot1 = line.dot1;
-    let dot2 = line.dot2;
-
-    if (!dot1 || !dot2) { return; }
-    _lines[dot1.id] = _lines[dot1.id] || {};
-    _lines[dot1.id][dot2.id] = line;
-    _linesArray.push(line);
-}
 
 function create(dot1, dot2) {
-    add(new Line(dot1, dot2));
+    let line = new Line(dot1, dot2);
+    _lines[dot1.id] = _lines[dot1.id] || {};
+    _lines[dot1.id][dot2.id] = line;
 }
 
 // doesn't matter what order dot1 and dot2 are passed in
 function get(dot1, dot2) {
-    if (!dot1 || !dot2) {
-        return _linesArray;
-    }
-
     if (_lines[dot1.id] && _lines[dot1.id][dot2.id]) {
         return _lines[dot1.id][dot2.id];
-    } else {
-        return _lines[dot2.id] && _lines[dot2.id][dot1.id];
     }
+    return _lines[dot2.id] && _lines[dot2.id][dot1.id];
 }
 
 function reset() {
     _lines = {};
-    _linesArray = [];
 }
 
 export default {

@@ -1,4 +1,4 @@
-export let COLORS = {
+export const COLORS = {
     MULTI: [
         {r: 129, g: 116, b: 179, a: 0.6},
         {r: 116, g: 150, b: 179, a: 0.6},

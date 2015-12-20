@@ -1,22 +1,19 @@
-import _ from 'underscore';
 import lines from './lines';
 import {settings} from './settings';
 
 
+let _fadingBoxes = [];
+
 class Color {
-    constructor(opts) {
-        opts = opts || {};
-        this.r = opts.r;
-        this.g = opts.g;
-        this.b = opts.b;
-        this.a = opts.a;
-        this.box = opts.box;
-        this.curAlpha = 0;
+    constructor(opts = {}) {
+        let {r, g, b, a, box} = opts;
+        Object.assign(this, { r, g, b, a, box, curAlpha: 0 });
     }
 
     toRGBA() {
-        let levels = [ this.r, this.g, this.b, this.curAlpha ];
-        return 'rgba(' + levels.join(',') + ')';
+        let {r, g, b, curAlpha} = this;
+        let rgba = [r, g, b, curAlpha].join(',');
+        return `rgba(${rgba})`;
     }
 
     fadeInStep() {
@@ -24,6 +21,7 @@ class Color {
         this.curAlpha += da;
         if (da < 0.00001) {
             this.curAlpha = this.a;
+            // FIXME: bad idea to have this calling the box's method
             if (this.box) { this.box.fadeComplete(); }
         }
         return this;
@@ -33,34 +31,19 @@ class Color {
 
 class Box {
     constructor(dot1, dot2, dot3, dot4) {
-        this.id = _.uniqueId('b');
-        this.dots = [];
-        this.fading = false;
-
+        this.dots = [dot1, dot2, dot3, dot4];
         this.lines = [
             lines.get(dot1, dot2),
             lines.get(dot2, dot3),
             lines.get(dot3, dot4),
             lines.get(dot4, dot1)
         ];
-
-        this.lines = _.compact(this.lines);
-        if (this.lines.length !== 4) {
-            return;
-        }
-
-        // set pointers on the lines back to this box
-        // and setup the dots array
-        for (let i = 0, len = this.lines.length; i < len; i++) {
-            this.lines[i].setPointerToBox(this);
-            this.dots.push(this.lines[i].dot1);
-            this.dots.push(this.lines[i].dot2);
-        }
-
-        this.dots = _.uniq(this.dots);
+        // FIXME: pointing back to box seems like a bad idea
+        this.lines.forEach(line => line.setPointerToBox(this));
     }
 
     // returns the upper LH dot of the box
+    // TODO: memoize this
     getOriginDot() {
         let originDot;
         let len = this.dots.length;
@@ -71,7 +54,6 @@ class Box {
                 originDot = dot;
             }
         }
-        this.originDot = originDot;
         return originDot;
     }
 
@@ -85,12 +67,12 @@ class Box {
 
     fill(ctx) {
         /// get the upper LH dot
-        let dot = this.originDot || this.getOriginDot();
-        let coords = dot.coords();
+        let dot = this.getOriginDot();
+        let {x, y} = dot.coords();
         let offset = settings.FILLED_BOX_OFFSET;
         let dimen = settings.BOX_SIZE - (offset * 2);
         ctx.beginPath();
-        ctx.rect(coords.x + offset, coords.y + offset, dimen, dimen);
+        ctx.rect(x + offset, y + offset, dimen, dimen);
         ctx.fillStyle = 'white';
         ctx.fill();
         ctx.strokeStyle = 'rgba(255,255,255,0.5)';
@@ -98,11 +80,12 @@ class Box {
         ctx.closePath();
 
         ctx.beginPath();
-        ctx.rect(coords.x, coords.y, settings.BOX_SIZE, settings.BOX_SIZE);
+        ctx.rect(x, y, settings.BOX_SIZE, settings.BOX_SIZE);
         ctx.fillStyle = this.color.fadeInStep().toRGBA();
         ctx.fill();
     }
 
+    // FIXME: I don't like the way this method is called by other modules
     lineDrawn() {
         if (this.checkDrawnLines()) {
             this.startFade();
@@ -110,59 +93,34 @@ class Box {
     }
 
     startFade() {
-        let colorData = random(settings.FILL_COLORS);
-        colorData.box = this;
-        this.color = new Color(colorData);
-        this.fading = true;
-        addToFading(this);
+        this.color = new Color({
+            ...random(settings.FILL_COLORS),
+            box: this
+        });
+        _fadingBoxes.push(this);
     }
 
     fadeComplete() {
-        this.fading = false;
-        removeFromFading(this);
+        let i = _fadingBoxes.indexOf(this);
+        _fadingBoxes.splice(i, 1);
     }
 }
 
 
-let _boxes = [];
-let _fadingBoxes = [];
-
-function create(cornerDots) {
-    add(new Box(cornerDots[0], cornerDots[1], cornerDots[2], cornerDots[3]));
-}
-
-function add(box) {
-    if (!box) { return; }
-    _boxes.push(box);
-}
-
-function get() {
-    return _boxes;
+function create([dot1, dot2, dot3, dot4]) {
+    new Box(dot1, dot2, dot3, dot4);
 }
 
 function getFading() {
     return _fadingBoxes;
 }
 
-function removeFromFading(box) {
-    let i = _.indexOf(_fadingBoxes, box);
-    _fadingBoxes.splice(i, 1);
-}
-
-function addToFading(box) {
-    _fadingBoxes.push(box);
-}
-
 function reset() {
-    _boxes = [];
     _fadingBoxes = [];
 }
 
 export default {
     create: create,
-    get: get,
     reset: reset,
-    getFading: getFading,
-    removeFromFading: removeFromFading,
-    addToFading: addToFading
+    getFading: getFading
 };

@@ -6,23 +6,20 @@ let _dotsArray = [];
 
 class Dot {
     constructor(x, y) {
-        this.id = 'd-x' + x + 'y' + y;
-        this.x = x;
-        this.y = y;
+        Object.assign(this, { x, y, id: `d-x${x}y${y}` });
     }
 
     draw(ctx) {
-        let coords = this.coords();
+        let {x, y} = this.coords();
         ctx.fillStyle = settings.LIGHT_GRAY;
-        ctx.fillRect(coords.x, coords.y, settings.DOT_SIZE, settings.DOT_SIZE);
+        ctx.fillRect(x, y, settings.DOT_SIZE, settings.DOT_SIZE);
         return this;
     }
 
     coords() {
-        return {
-            x: this.x * settings.BOX_SIZE,
-            y: this.y * settings.BOX_SIZE
-        };
+        let x = this.x * settings.BOX_SIZE;
+        let y = this.y * settings.BOX_SIZE;
+        return { x, y };
     }
 }
 
@@ -34,8 +31,8 @@ function add(dot) {
     if (!dot) { return; }
     if (typeof dot.x !== 'number' || typeof dot.y !== 'number') { return; }
 
-    let x = 'x' + dot.x;
-    let y = 'y' + dot.y;
+    let x = `x${dot.x}`;
+    let y = `y${dot.y}`;
 
     _dots[x] = _dots[x] || {};
     _dots[x][y] = dot;
@@ -48,46 +45,40 @@ function get(x, y) {
         return _dotsArray;
     }
 
-    x = 'x' + x;
-    y = 'y' + y;
+    x = `x${x}`;
+    y = `y${y}`;
 
     return _dots[x] && _dots[x][y];
 }
 
-// returns two neighbors (the neighbor below and to the right)
-function getNeighborsOf(dot) {
-    let neighbors = [];
-    neighbors.push(get(dot.x + 1, dot.y));
-    neighbors.push(get(dot.x, dot.y + 1));
-    return neighbors;
+// returns up to two neighbors (the neighbor below and to the right)
+function getNeighborsOf({x, y}) {
+    return [
+        get(x + 1, y),
+        get(x, y + 1)
+    ].filter(val => !!val);
 }
 
 // returns all four neighbors)
-function getAllNeighborsOf(dot) {
-    if (dot.neighbors) { return dot.neighbors; }
-
-    let neighbors = [];
-    neighbors.push(get(dot.x + 1, dot.y));
-    neighbors.push(get(dot.x, dot.y + 1));
-    neighbors.push(get(dot.x - 1, dot.y));
-    neighbors.push(get(dot.x, dot.y - 1));
-
-    dot.neighbors = neighbors;
-    return neighbors;
+// TODO: memoize me
+function getAllNeighborsOf({x, y}) {
+    return [
+        get(x + 1, y),
+        get(x, y + 1),
+        get(x - 1, y),
+        get(x, y - 1)
+    ].filter(val => !!val);
 }
 
 // with 'dot' as the upper LH corner, get the next 3 dots that make up the box
+// TODO: memoize me
 function getFourCorners(dot) {
-    if (dot.corners) { return dot.corners; }
-
-    let corners = [
+    return [
         dot,
         get(dot.x + 1, dot.y),
         get(dot.x + 1, dot.y + 1),
         get(dot.x, dot.y + 1)
-    ];
-    dot.corners = corners.filter(val => val);
-    return dot.corners;
+    ].filter(val => !!val);
 }
 
 function reset() {
