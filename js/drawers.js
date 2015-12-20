@@ -1,6 +1,5 @@
 import dots from './dots';
 import lines from './lines';
-import _ from 'underscore';
 import {settings} from './settings';
 import DOTS from './sketch';
 
@@ -8,8 +7,7 @@ import DOTS from './sketch';
 let {abs} = Math;
 
 let _drawers = [];
-let _lines = [];
-let _alive = [];
+let _drawnLines = [];
 
 
 class Animator {
@@ -62,42 +60,29 @@ class Animator {
 class Drawer {
     constructor(startingDot) {
         this.location = startingDot;
-        this.dead = false;
         this.animating = false;
-        this.id = _.uniqueId();
     }
 
     drawToNeighbor() {
-        if (this.dead) {
-            return;
-        }
-
         if (this.animator) {
             this.animator.update();
             return;
         }
 
-        let current = this.location;
-        let neighbors = dots.getAllNeighborsOf(current);
-        let someLines = _.map(neighbors, function(dot) {
-            if (!dot) { return false; }
-            let line = lines.get(dot, current);
-            if (!line) { return false; }
-            if (checkLines(line)) { return false; }
-            return line;
-        });
+        let undrawnLines = dots.getAllNeighborsOf(this.location).map((dot) => {
+            let line = lines.get(dot, this.location);
+            return _drawnLines.includes(line) ? null : line;
+        }).filter(val => !!val);
 
-        someLines = _.compact(someLines);
-
-        if (!someLines.length) {
+        if (!undrawnLines.length) {
             this.remove();
             return;
         }
 
-        let i = random(someLines.length) | 0;
-        let line = someLines[i];
+        let i = random(undrawnLines.length) | 0;
+        let line = undrawnLines[i];
 
-        _lines.push(line);
+        _drawnLines.push(line);
 
         let destDot = (line.dot1 === this.location) ? line.dot2 : line.dot1;
         this.animator = new Animator(this.location, destDot, line, this);
@@ -111,58 +96,30 @@ class Drawer {
     }
 
     remove() {
-        removeFromAlive(this);
-        this.dead = true;
+        let i = _drawers.indexOf(this);
+        _drawers = [
+            ..._drawers.slice(0, i),
+            ..._drawers.slice(i + 1)
+        ];
     }
 }
 
 function create(x, y) {
-    // if x and y are coords, then get the dot from the collection
-    // otherwise, assume that x is a dot
-    let dot = (typeof x === 'number' && typeof y === 'number') ? dots.get(x, y) : x;
-
-    let drawer = new Drawer(dot);
+    let drawer = new Drawer(dots.get(x, y));
     _drawers.push(drawer);
-    addToAlive(drawer);
-
-}
-
-// check to see if the line passed in is already in the lines array
-function checkLines(line) {
-    if (!line || !line.id) { return false; }
-    for (let i = 0, len = _lines.length; i < len; i++) {
-        if (line.id === _lines[i].id) { return true; }
-    }
-    return false;
 }
 
 function get() {
     return _drawers;
 }
 
-function addToAlive(drawer) {
-    _alive.push(drawer);
-}
-
-function removeFromAlive(drawer) {
-    let i = _.indexOf(_alive, drawer);
-    _alive.splice(i, 1);
-}
-
-function getAlive() {
-    return _alive;
-}
-
 function reset() {
     _drawers = [];
-    _lines = [];
+    _drawnLines = [];
 }
 
 export default {
     create: create,
     get: get,
-    reset: reset,
-    getAlive: getAlive,
-    removeFromAlive: removeFromAlive,
-    addToAlive: addToAlive
+    reset: reset
 };

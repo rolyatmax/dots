@@ -1,5 +1,5 @@
 /* globals Info */
-
+import 'babel-polyfill';
 import {markdown} from 'markdown';
 
 require('./sketch');
