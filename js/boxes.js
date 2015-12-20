@@ -85,6 +85,7 @@ class Box {
         ctx.fill();
     }
 
+    // FIXME: I don't like the way this method is called by other modules
     lineDrawn() {
         if (this.checkDrawnLines()) {
             this.startFade();
