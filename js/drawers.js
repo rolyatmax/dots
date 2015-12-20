@@ -104,6 +104,7 @@ class Drawer {
     }
 }
 
+
 function create(x, y) {
     let drawer = new Drawer(dots.get(x, y));
     _drawers.push(drawer);

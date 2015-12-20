@@ -4,6 +4,7 @@ import {settings} from './settings';
 
 let _fadingBoxes = [];
 
+
 class Color {
     constructor(opts = {}) {
         let {r, g, b, a, box} = opts;

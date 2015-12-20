@@ -4,6 +4,7 @@ import {settings} from './settings';
 let _dots = {};
 let _dotsArray = [];
 
+
 class Dot {
     constructor(x, y) {
         Object.assign(this, { x, y, id: `d-x${x}y${y}` });
@@ -23,25 +24,18 @@ class Dot {
     }
 }
 
+
 function create(x, y) {
-    add(new Dot(x, y));
-}
-
-function add(dot) {
-    if (!dot) { return; }
-    if (typeof dot.x !== 'number' || typeof dot.y !== 'number') { return; }
-
-    let x = `x${dot.x}`;
-    let y = `y${dot.y}`;
-
+    let dot = new Dot(x, y);
+    x = `x${x}`;
+    y = `y${y}`;
     _dots[x] = _dots[x] || {};
     _dots[x][y] = dot;
-
     _dotsArray.push(dot);
 }
 
 function get(x, y) {
-    if (typeof x !== 'number' || typeof y !== 'number') {
+    if (typeof x !== 'number' && typeof y !== 'number') {
         return _dotsArray;
     }
 
@@ -59,7 +53,7 @@ function getNeighborsOf({x, y}) {
     ].filter(val => !!val);
 }
 
-// returns all four neighbors)
+// returns all four neighbors
 // TODO: memoize me
 function getAllNeighborsOf({x, y}) {
     return [

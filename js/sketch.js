@@ -7,13 +7,11 @@ import {settings} from './settings';
 
 let {ceil} = Math;
 
-let DOTS = Sketch.create({
+export default Sketch.create({
     container: document.getElementById('container'),
     autostart: false,
-    autoclear: false
-});
+    autoclear: false,
 
-DOTS = Object.assign(DOTS, {
     setup() {
         let xLimit = ceil(this.width / settings.BOX_SIZE);
         let yLimit = ceil(this.height / settings.BOX_SIZE);
@@ -71,5 +69,3 @@ DOTS = Object.assign(DOTS, {
         this.start();
     }
 });
-
-export default DOTS;
