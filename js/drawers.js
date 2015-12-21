@@ -1,4 +1,4 @@
-import dots from './dots';
+import {getAllNeighborsOf} from './dots';
 import lines from './lines';
 import {settings} from './settings';
 import DOTS from './sketch';
@@ -69,7 +69,7 @@ class Drawer {
             return;
         }
 
-        let undrawnLines = dots.getAllNeighborsOf(this.location).map((dot) => {
+        let undrawnLines = getAllNeighborsOf(this.location).map((dot) => {
             let line = lines.get(dot, this.location);
             return _drawnLines.includes(line) ? null : line;
         }).filter(val => !!val);
@@ -106,7 +106,7 @@ class Drawer {
 
 
 function create(x, y) {
-    let drawer = new Drawer(dots.get(x, y));
+    let drawer = new Drawer({x, y});
     _drawers.push(drawer);
 }
 

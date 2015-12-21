@@ -1,4 +1,5 @@
 import lines from './lines';
+import {getDotCoords} from './dots';
 import {settings} from './settings';
 
 
@@ -43,21 +44,6 @@ class Box {
         this.lines.forEach(line => line.setPointerToBox(this));
     }
 
-    // returns the upper LH dot of the box
-    // TODO: memoize this
-    getOriginDot() {
-        let originDot;
-        let len = this.dots.length;
-        while (len--) {
-            let dot = this.dots[len];
-            originDot = originDot || dot;
-            if (dot.x < originDot.x || dot.y < originDot.y) {
-                originDot = dot;
-            }
-        }
-        return originDot;
-    }
-
     checkDrawnLines() {
         let len = this.lines.length;
         while (len--) {
@@ -66,10 +52,10 @@ class Box {
         return true;
     }
 
-    fill(ctx) {
+    fill(ctx, dots) {
         /// get the upper LH dot
-        let dot = this.getOriginDot();
-        let {x, y} = dot.coords();
+        let dot = getOriginDot(dots);
+        let {x, y} = getDotCoords(dot);
         let offset = settings.FILLED_BOX_OFFSET;
         let dimen = settings.BOX_SIZE - (offset * 2);
         ctx.beginPath();
@@ -105,6 +91,22 @@ class Box {
         let i = _fadingBoxes.indexOf(this);
         _fadingBoxes.splice(i, 1);
     }
+}
+
+
+// returns the upper LH dot of the box
+// TODO: memoize this
+function getOriginDot(dots) {
+    let originDot;
+    let len = dots.length;
+    while (len--) {
+        let dot = dots[len];
+        originDot = originDot || dot;
+        if (dot.x < originDot.x || dot.y < originDot.y) {
+            originDot = dot;
+        }
+    }
+    return originDot;
 }
 
 

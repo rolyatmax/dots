@@ -1,48 +1,8 @@
 import {settings} from './settings';
 
 
-let _dots = {};
-let _dotsArray = [];
-
-
-class Dot {
-    constructor(x, y) {
-        Object.assign(this, { x, y, id: `d-x${x}y${y}` });
-    }
-
-    draw(ctx) {
-        let {x, y} = this.coords();
-        ctx.fillStyle = settings.LIGHT_GRAY;
-        ctx.fillRect(x, y, settings.DOT_SIZE, settings.DOT_SIZE);
-        return this;
-    }
-
-    coords() {
-        let x = this.x * settings.BOX_SIZE;
-        let y = this.y * settings.BOX_SIZE;
-        return { x, y };
-    }
-}
-
-
-function create(x, y) {
-    let dot = new Dot(x, y);
-    x = `x${x}`;
-    y = `y${y}`;
-    _dots[x] = _dots[x] || {};
-    _dots[x][y] = dot;
-    _dotsArray.push(dot);
-}
-
 function get(x, y) {
-    if (typeof x !== 'number' && typeof y !== 'number') {
-        return _dotsArray;
-    }
-
-    x = `x${x}`;
-    y = `y${y}`;
-
-    return _dots[x] && _dots[x][y];
+    return {x, y};
 }
 
 // returns up to two neighbors (the neighbor below and to the right)
@@ -75,16 +35,29 @@ function getFourCorners(dot) {
     ].filter(val => !!val);
 }
 
-function reset() {
-    _dots = {};
-    _dotsArray = [];
+function getDotID({x, y}) {
+    return `d-x${x}y${y}`;
+}
+
+function getDotCoords({x, y}) {
+    x *= settings.BOX_SIZE;
+    y *= settings.BOX_SIZE;
+    return { x, y };
+}
+
+function drawDot(ctx, dot) {
+    let {x, y} = getDotCoords(dot);
+    ctx.fillStyle = settings.LIGHT_GRAY;
+    ctx.fillRect(x, y, settings.DOT_SIZE, settings.DOT_SIZE);
 }
 
 export default {
-    get: get,
-    getNeighborsOf: getNeighborsOf,
-    getAllNeighborsOf: getAllNeighborsOf,
-    getFourCorners: getFourCorners,
-    reset: reset,
-    create: create
+    get,
+    reset,
+    getNeighborsOf,
+    getAllNeighborsOf,
+    getFourCorners,
+    getDotID,
+    getDotCoords,
+    drawDot
 };
