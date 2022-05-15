@@ -1,4 +1,4 @@
-import dots from './dots';
+import {getNeighborsOf, getFourCorners, drawDot} from './dots';
 import Sketch from 'sketch-js';
 import drawers from './drawers';
 import lines from './lines';
@@ -7,13 +7,13 @@ import {settings} from './settings';
 
 let {ceil} = Math;
 
-let DOTS = Sketch.create({
+let dots = [];
+
+export default Sketch.create({
     container: document.getElementById('container'),
     autostart: false,
-    autoclear: false
-});
+    autoclear: false,
 
-DOTS = Object.assign(DOTS, {
     setup() {
         let xLimit = ceil(this.width / settings.BOX_SIZE);
         let yLimit = ceil(this.height / settings.BOX_SIZE);
@@ -21,37 +21,35 @@ DOTS = Object.assign(DOTS, {
         // create all the dots
         for (let x = 0; x < xLimit; x++) {
             for (let y = 0; y < yLimit; y++) {
-                dots.create(x, y);
+                dots.push({x, y});
             }
         }
 
-        let allDots = dots.get();
-
         // create all the lines
-        allDots.forEach(dot => {
-            dots.getNeighborsOf(dot).forEach(neighbor => lines.create(dot, neighbor));
+        dots.forEach(dot => {
+            getNeighborsOf(dot).forEach(neighbor => lines.create(dot, neighbor));
         });
 
         // create all the boxes
-        allDots.forEach(dot => {
-            let ds = dots.getFourCorners(dot);
+        dots.forEach(dot => {
+            let ds = getFourCorners(dot);
             if (ds.length !== 4) { return; }
             boxes.create(ds);
         });
 
         // create all the drawers
         for (let k = 0; k < settings.DRAWERS_COUNT; k++) {
-            let {x, y} = random(allDots);
+            let {x, y} = random(dots);
             drawers.create(x, y);
         }
 
         // draw all the dots
-        allDots.forEach(dot => dot.draw(this));
+        dots.forEach(dot => drawDot(this, dot));
     },
 
     draw() {
         drawers.get().forEach(drawer => drawer.drawToNeighbor());
-        boxes.getFading().forEach(box => box.fill(this));
+        boxes.getFading().forEach(box => box.fill(this, dots));
     },
 
     resize() {
@@ -62,7 +60,7 @@ DOTS = Object.assign(DOTS, {
         this.stop();
         // FIXME: move state to one spot so we don't have to try to reset
         // state that's spread all over
-        dots.reset();
+        dots = [];
         lines.reset();
         drawers.reset();
         boxes.reset();
@@ -71,5 +69,3 @@ DOTS = Object.assign(DOTS, {
         this.start();
     }
 });
-
-export default DOTS;
